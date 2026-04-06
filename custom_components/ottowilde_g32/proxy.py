@@ -95,8 +95,8 @@ class OttoWildeProxy:
             # Calibration: At display=3°C, actual=7°C → need +4°C offset
             # Offset slope: 4 / (21 - 3) ≈ 0.222°C per degree below 21°C
             if temp_raw_c < 21:
-                offset = (21 - temp_raw_c) * 0.222
-                temp_c = temp_raw_c + offset
+                temp_offset = (21 - temp_raw_c) * 0.222
+                temp_c = temp_raw_c + temp_offset
             else:
                 temp_c = temp_raw_c
 
