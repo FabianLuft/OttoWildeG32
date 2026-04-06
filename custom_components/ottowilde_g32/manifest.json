@@ -1,0 +1,11 @@
+{
+  "domain": "ottowilde_g32",
+  "name": "OttoWilde G32 Grill",
+  "documentation": "https://github.com/FabianLuft/OttoWildeG32",
+  "issue_tracker": "https://github.com/FabianLuft/OttoWildeG32/issues",
+  "requirements": [],
+  "codeowners": ["@FabianLuft"],
+  "config_flow": true,
+  "iot_class": "local_push",
+  "version": "1.0.0"
+}

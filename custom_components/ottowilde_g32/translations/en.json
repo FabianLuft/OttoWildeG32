@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up OttoWilde G32 Grill",
+        "description": "Enter your grill's IP address. {dns_setup}",
+        "data": {
+          "grill_ip": "Grill IP Address"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to grill",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This grill is already configured"
+    }
+  }
+}
