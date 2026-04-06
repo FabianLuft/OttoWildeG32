@@ -7,20 +7,31 @@ HomeAssistant custom integration for the **OttoWilde G32 Connected** infrared gr
 ## Features
 
 - **8 Temperature Sensors**: 4 grill surface zones + 4 meat probes
+- **8 Target Temperature Controls**: Automatic number entities for setting thresholds
+- **8 Climate Dial Controls**: Full thermostat interface for visual temperature control
 - **Gas Level Monitoring**: Real-time gas bottle percentage
 - **Hood Status**: Binary sensor for hood open/closed
 - **Auto-Light Sensor**: Detects when ambient light triggers automatic grill light
 - **Configuration Monitoring**: Read-only sensors showing grill warnings and light sensitivity settings
+- **Automatic Setup**: All entities created automatically - no manual YAML configuration needed!
 
 All data is intercepted locally via MITM proxy and forwarded transparently to the cloud - your mobile app continues to work normally.
 
 ## Entities
 
-After installation, you'll get these entities:
+After installation, you'll get these entities **automatically created**:
 
 ### Temperature Sensors (8)
 - `sensor.ottowilde_g32_zone_1` through `zone_4` - Grill surface temperatures (0-600°C)
 - `sensor.ottowilde_g32_probe_1` through `probe_4` - Meat probe temperatures (0-120°C)
+
+### Target Temperature Controls (8)
+- `number.ottowilde_g32_zone_1_target` through `zone_4_target` - Zone thresholds (0-600°C, step 10)
+- `number.ottowilde_g32_probe_1_target` through `probe_4_target` - Probe targets (0-120°C, step 1)
+
+### Climate Dial Controls (8)
+- `climate.ottowilde_g32_zone_1_dial` through `zone_4_dial` - Zone thermostat interface
+- `climate.ottowilde_g32_probe_1_dial` through `probe_4_dial` - Probe thermostat interface
 
 ### Other Sensors (2)
 - `sensor.ottowilde_g32_gas_level` - Gas bottle percentage (0-100%)
@@ -31,7 +42,7 @@ After installation, you'll get these entities:
 - `binary_sensor.ottowilde_g32_auto_light` - Auto-light triggered (dark environment detected)
 - `binary_sensor.ottowilde_g32_warnings_enabled` - Grill warnings enabled/disabled
 
-**Total: 10 sensors + 3 binary sensors = 13 entities**
+**Total: 10 sensors + 8 number entities + 8 climate entities + 3 binary sensors = 29 entities**
 
 ## Prerequisites
 
@@ -93,7 +104,9 @@ The integration will:
 - Accept connections from your grill
 - Parse sensor data in real-time
 - Forward all traffic to the real cloud server (3.120.177.98:4501)
-- Create 13 entities under one device
+- **Automatically create 29 entities** under one device (sensors, thresholds, climate controls)
+
+**No manual YAML configuration needed!** Everything is set up automatically.
 
 ### Step 3: Power Cycle Your Grill
 
@@ -111,10 +124,28 @@ INFO: 📊 Grill Data → Zone 1: 15.2°C | ... | Gas: 35.0% | Hood: closed
 
 ## Verifying It Works
 
-1. **Check Entities**: All 13 entities should appear under the OttoWilde G32 device
+1. **Check Entities**: All 29 entities should appear under the OttoWilde G32 device
+   - 8 temperature sensors
+   - 8 target number entities
+   - 8 climate dial entities
+   - 3 binary sensors
+   - 2 other sensors
 2. **Test Mobile App**: Open the OttoWilde app - it should still work normally
 3. **Watch Logs**: Real-time sensor data should appear in HomeAssistant logs every ~4 seconds
 4. **Change Settings**: Toggle warnings in the mobile app - the `warnings_enabled` sensor should update in HA
+5. **Test Climate Dials**: Open a climate entity (e.g., `climate.ottowilde_g32_zone_1_dial`) and adjust the target temperature
+
+## Dashboard Setup
+
+Want a beautiful circular dial interface? See [VIZ/README_DIAL.md](../VIZ/README_DIAL.md) for instructions on setting up:
+- Circular gauge rings with thick borders
+- Draggable temperature controls
+- +/- adjustment buttons
+- Tap-to-edit direct input
+- Color-coded temperature indicators
+- Mushroom Cards integration
+
+Simply paste the provided YAML into a dashboard card - all entities are already created!
 
 ## Troubleshooting
 
