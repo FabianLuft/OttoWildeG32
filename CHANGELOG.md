@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.2] - 2026-04-07
+
+### Fixed
+- **Temperature formula correction** - Updated temperature divisors based on observed values
+  - Zones: Changed from ÷20 to ÷23.4 (corrects 1.17x multiplier)
+  - Probes: Changed from ÷10 to ÷25 (corrects 2.5x multiplier)
+  - Formulas determined empirically by comparing HA readings to mobile app during operation
+
+**Note:** Combined with v1.2.1 state_class fix, temperatures should now be accurate and stable.
+
 ## [1.2.1] - 2026-04-07
 
 ### Fixed

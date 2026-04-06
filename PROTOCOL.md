@@ -59,14 +59,14 @@ The OttoWilde G32 Connected grill uses a bidirectional TCP protocol over port 45
 |---------|-------|------|-------------|---------|
 | 0-1 | Header | Fixed | Always `0xa3 0x3a` | - |
 | 2-5 | Serial | 4 bytes | Grill serial number | Hex string |
-| 6-7 | Zone 1 | uint16 BE | Grill surface zone 1 temp | raw ÷ 20 = °C |
-| 8-9 | Zone 2 | uint16 BE | Grill surface zone 2 temp | raw ÷ 20 = °C |
-| 10-11 | Zone 3 | uint16 BE | Grill surface zone 3 temp | raw ÷ 20 = °C |
-| 12-13 | Zone 4 | uint16 BE | Grill surface zone 4 temp | raw ÷ 20 = °C |
-| 14-15 | Probe 1 | uint16 BE | Meat probe 1 temp | raw ÷ 10 = °C |
-| 16-17 | Probe 2 | uint16 BE | Meat probe 2 temp | raw ÷ 10 = °C |
-| 18-19 | Probe 3 | uint16 BE | Meat probe 3 temp | raw ÷ 10 = °C |
-| 20-21 | Probe 4 | uint16 BE | Meat probe 4 temp | raw ÷ 10 = °C |
+| 6-7 | Zone 1 | uint16 BE | Grill surface zone 1 temp | raw ÷ 23.4 = °C |
+| 8-9 | Zone 2 | uint16 BE | Grill surface zone 2 temp | raw ÷ 23.4 = °C |
+| 10-11 | Zone 3 | uint16 BE | Grill surface zone 3 temp | raw ÷ 23.4 = °C |
+| 12-13 | Zone 4 | uint16 BE | Grill surface zone 4 temp | raw ÷ 23.4 = °C |
+| 14-15 | Probe 1 | uint16 BE | Meat probe 1 temp | raw ÷ 25 = °C |
+| 16-17 | Probe 2 | uint16 BE | Meat probe 2 temp | raw ÷ 25 = °C |
+| 18-19 | Probe 3 | uint16 BE | Meat probe 3 temp | raw ÷ 25 = °C |
+| 20-21 | Probe 4 | uint16 BE | Meat probe 4 temp | raw ÷ 25 = °C |
 | 22-23 | Gas Level | uint16 BE | Gas bottle percentage | raw ÷ 112 = % |
 | 24 | Hood Status | uint8 | Hood open/closed | 0=closed, 1=open |
 | 25 | Auto-Light | uint8 | Light sensor activation | 0=inactive, 1=active |
@@ -75,17 +75,19 @@ The OttoWilde G32 Connected grill uses a bidirectional TCP protocol over port 45
 
 ### Temperature Encoding Rationale
 
-The protocol uses **different divisors** for zones vs probes based on their operating ranges:
+The protocol uses **different divisors** for zones vs probes:
 
-- **Zones (÷20)**: Grill surface temperatures range 0-600°C for infrared grilling
-  - 16-bit max: 65535 ÷ 20 = 3276°C (sufficient headroom)
-  - Precision: 0.05°C steps
+- **Zones (÷23.4)**: Grill surface temperatures range 0-600°C for infrared grilling
+  - 16-bit max: 65535 ÷ 23.4 = 2800°C (sufficient headroom)
+  - Precision: 0.043°C steps
+  - Formula determined empirically (corrected from initial ÷20)
   
-- **Probes (÷10)**: Meat temperatures range 0-120°C
-  - 16-bit max: 65535 ÷ 10 = 6553°C (more than needed)
-  - Precision: 0.1°C steps (better resolution for food temps)
+- **Probes (÷25)**: Meat temperatures range 0-120°C
+  - 16-bit max: 65535 ÷ 25 = 2621°C (more than needed)
+  - Precision: 0.04°C steps
+  - Formula determined empirically (corrected from initial ÷10)
 
-This encoding optimizes data size (2 bytes per sensor) while maintaining appropriate precision for each sensor type.
+These divisors were determined by comparing raw sensor values to mobile app readings during operation.
 
 ### Unused Sensor Marker
 
