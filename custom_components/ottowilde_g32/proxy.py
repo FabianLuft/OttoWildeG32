@@ -88,7 +88,7 @@ class OttoWildeProxy:
                 continue
 
             # Temperature calculation: both zones and probes use ÷25 with low-temp offset correction
-            temp_raw_c = temp_raw / 25.0
+            temp_raw_c = float(temp_raw) / 25.0
 
             # Apply offset correction for temperatures below 21°C (ambient range)
             # Non-linear encoding in firmware requires offset that decreases linearly to 0 at 21°C
@@ -102,10 +102,10 @@ class OttoWildeProxy:
 
             if i < 4:
                 # Zones (grill surface temperatures)
-                result['zones'][f'zone_{i+1}'] = round(temp_c, 1)
+                result['zones'][f'zone_{i+1}'] = float(round(temp_c, 1))
             else:
                 # Probes (meat/food temperatures)
-                result['probes'][f'probe_{i-3}'] = round(temp_c, 1)
+                result['probes'][f'probe_{i-3}'] = float(round(temp_c, 1))
 
             # DEBUG: Log raw hex values for temperature analysis
             sensor_type = "zone" if i < 4 else "probe"
