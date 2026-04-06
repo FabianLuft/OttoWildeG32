@@ -8,7 +8,6 @@ HomeAssistant custom integration for the **OttoWilde G32 Connected** infrared gr
 
 - **8 Temperature Sensors**: 4 grill surface zones + 4 meat probes
 - **8 Target Temperature Controls**: Automatic number entities for setting thresholds
-- **8 Climate Dial Controls**: Full thermostat interface for visual temperature control
 - **Gas Level Monitoring**: Real-time gas bottle percentage
 - **Hood Status**: Binary sensor for hood open/closed
 - **Auto-Light Sensor**: Detects when ambient light triggers automatic grill light
@@ -26,12 +25,8 @@ After installation, you'll get these entities **automatically created**:
 - `sensor.ottowilde_g32_probe_1` through `probe_4` - Meat probe temperatures (0-120°C)
 
 ### Target Temperature Controls (8)
-- `number.ottowilde_g32_zone_1_target` through `zone_4_target` - Zone thresholds (0-600°C, step 10)
-- `number.ottowilde_g32_probe_1_target` through `probe_4_target` - Probe targets (0-120°C, step 1)
-
-### Climate Dial Controls (8)
-- `climate.ottowilde_g32_zone_1_dial` through `zone_4_dial` - Zone thermostat interface
-- `climate.ottowilde_g32_probe_1_dial` through `probe_4_dial` - Probe thermostat interface
+- `number.ottowilde_g32_grill_zone_1_target` through `zone_4_target` - Zone thresholds (0-600°C, step 10)
+- `number.ottowilde_g32_grill_probe_1_target` through `probe_4_target` - Probe targets (0-120°C, step 1)
 
 ### Other Sensors (2)
 - `sensor.ottowilde_g32_gas_level` - Gas bottle percentage (0-100%)
@@ -42,7 +37,7 @@ After installation, you'll get these entities **automatically created**:
 - `binary_sensor.ottowilde_g32_auto_light` - Auto-light triggered (dark environment detected)
 - `binary_sensor.ottowilde_g32_warnings_enabled` - Grill warnings enabled/disabled
 
-**Total: 10 sensors + 8 number entities + 8 climate entities + 3 binary sensors = 29 entities**
+**Total: 10 sensors + 8 number entities + 3 binary sensors = 21 entities**
 
 ## Prerequisites
 
@@ -104,7 +99,7 @@ The integration will:
 - Accept connections from your grill
 - Parse sensor data in real-time
 - Forward all traffic to the real cloud server (3.120.177.98:4501)
-- **Automatically create 29 entities** under one device (sensors, thresholds, climate controls)
+- **Automatically create 21 entities** under one device (sensors, thresholds)
 
 **No manual YAML configuration needed!** Everything is set up automatically.
 
@@ -124,26 +119,25 @@ INFO: 📊 Grill Data → Zone 1: 15.2°C | ... | Gas: 35.0% | Hood: closed
 
 ## Verifying It Works
 
-1. **Check Entities**: All 29 entities should appear under the OttoWilde G32 device
+1. **Check Entities**: All 21 entities should appear under the OttoWilde G32 device
    - 8 temperature sensors
    - 8 target number entities
-   - 8 climate dial entities
    - 3 binary sensors
    - 2 other sensors
 2. **Test Mobile App**: Open the OttoWilde app - it should still work normally
 3. **Watch Logs**: Real-time sensor data should appear in HomeAssistant logs every ~4 seconds
 4. **Change Settings**: Toggle warnings in the mobile app - the `warnings_enabled` sensor should update in HA
-5. **Test Climate Dials**: Open a climate entity (e.g., `climate.ottowilde_g32_zone_1_dial`) and adjust the target temperature
+5. **Adjust Targets**: Change a number entity (e.g., `number.ottowilde_g32_grill_zone_1_target`) and verify it's adjustable
 
 ## Dashboard Setup
 
-Want a beautiful circular dial interface? See [VIZ/README_DIAL.md](../VIZ/README_DIAL.md) for instructions on setting up:
-- Circular gauge rings with thick borders
-- Draggable temperature controls
-- +/- adjustment buttons
-- Tap-to-edit direct input
-- Color-coded temperature indicators
-- Mushroom Cards integration
+Want a beautiful visualization with progressive color intensity? See [VIZ/README_BUTTON.md](../VIZ/README_BUTTON.md) for instructions on setting up:
+- Large current temperature display
+- Small target temperature below
+- Progressive color intensity as temp approaches target
+- Orange for zones, blue for probes
+- Tap to adjust target temperature
+- Requires button-card from HACS
 
 Simply paste the provided YAML into a dashboard card - all entities are already created!
 

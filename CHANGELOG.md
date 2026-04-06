@@ -1,20 +1,44 @@
 # Changelog
 
+## [1.2.0] - 2026-04-07
+
+### Removed
+- **Climate entities** - Removed unnecessary climate platform
+  - Removed `climate.ottowilde_g32_grill_zone_*_dial` entities (8 total)
+  - Removed `climate.ottowilde_g32_grill_probe_*_dial` entities (8 total)
+  - These were redundant - dashboards can access sensors and number entities directly
+
+### Changed
+- Total entities reduced from 29 to 21 (removed 8 climate entities)
+- Simplified integration architecture - only essential entities remain
+- Updated README with new entity count and dashboard recommendations
+
+### Why This Change?
+Climate entities were only useful for thermostat-style cards. Modern dashboard cards (like button-card) can read sensor values and control number entities directly, making the climate platform unnecessary overhead.
+
+**Migration from 1.1.0:**
+If you were using climate entities in dashboards:
+- Replace with direct sensor/number entity references
+- Use `lovelace_button_simple.yaml` from VIZ folder
+- Example: Instead of `climate.ottowilde_g32_grill_zone_1_dial`, use:
+  - Display: `sensor.ottowilde_g32_zone_1` (current temp)
+  - Control: `number.ottowilde_g32_grill_zone_1_target` (tap to adjust)
+
 ## [1.1.0] - 2026-04-06
 
 ### Added
 - **Automatic entity creation** - no manual YAML configuration required!
 - **Number entities** (8 total):
-  - Zone target temperatures: `number.ottowilde_g32_zone_1_target` through `zone_4_target`
+  - Zone target temperatures: `number.ottowilde_g32_grill_zone_1_target` through `zone_4_target`
     - Range: 0-600°C, step 10°C, default 300°C
-  - Probe target temperatures: `number.ottowilde_g32_probe_1_target` through `probe_4_target`
+  - Probe target temperatures: `number.ottowilde_g32_grill_probe_1_target` through `probe_4_target`
     - Range: 0-120°C, step 1°C, default 60°C
-- **Climate entities** (8 total):
-  - Zone dial controls: `climate.ottowilde_g32_zone_1_dial` through `zone_4_dial`
-  - Probe dial controls: `climate.ottowilde_g32_probe_1_dial` through `probe_4_dial`
+- **Climate entities** (8 total) - DEPRECATED in v1.2.0
+  - Zone dial controls: `climate.ottowilde_g32_grill_zone_1_dial` through `zone_4_dial`
+  - Probe dial controls: `climate.ottowilde_g32_grill_probe_1_dial` through `probe_4_dial`
   - Full thermostat interface with draggable controls
   - Works seamlessly with mushroom-thermostat-card
-- New platforms: `number.py` and `climate.py`
+- New platforms: `number.py` and `climate.py` (climate.py removed in v1.2.0)
 
 ### Changed
 - Total entities increased from 13 to 29 (added 8 number + 8 climate entities)
@@ -37,8 +61,8 @@ If you were using manual `input_number` helpers and template climate entities:
 - `climate.zone_1_dial` (template)
 
 **New entities** (automatic):
-- `number.ottowilde_g32_zone_1_target`
-- `climate.ottowilde_g32_zone_1_dial`
+- `number.ottowilde_g32_grill_zone_1_target`
+- `climate.ottowilde_g32_grill_zone_1_dial`
 
 **Migration steps**:
 1. Update to v1.1.0
