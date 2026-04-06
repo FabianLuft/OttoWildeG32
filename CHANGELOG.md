@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.1] - 2026-04-07
+
+### Fixed
+- **Temperature sensor drift** - Removed `state_class=MEASUREMENT` from temperature sensors
+  - Temperatures were correct initially but would drift higher during heating
+  - Probes showed ~2.5x actual temperature, zones showed ~1.17x actual
+  - Root cause: `SensorStateClass.MEASUREMENT` is for energy/power sensors that need integration
+  - Temperature sensors should NOT use state_class (matches HA core thermostats/weather sensors)
+  - Gas sensor keeps state_class (correct usage for tracking tank level over time)
+
+**Impact:** After updating to v1.2.1, temperature readings will stay accurate and won't drift during grill operation.
+
+**Migration:** 
+- Update integration via HACS
+- Restart HomeAssistant or reload integration
+- Temperature sensor entities will be recreated without state_class
+- Historical statistics for temperature will be reset (this is intentional - old data was incorrect)
+
 ## [1.2.0] - 2026-04-07
 
 ### Removed

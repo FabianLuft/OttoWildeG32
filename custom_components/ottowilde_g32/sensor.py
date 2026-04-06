@@ -84,7 +84,6 @@ class OttoWildeZoneSensor(OttoWildeBaseSensor):
     """Representation of a grill zone temperature sensor."""
 
     _attr_device_class = SensorDeviceClass.TEMPERATURE
-    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
 
     def __init__(self, proxy, entry: ConfigEntry, zone_number: int) -> None:
@@ -107,7 +106,6 @@ class OttoWildeProbeSensor(OttoWildeBaseSensor):
     """Representation of a meat probe temperature sensor."""
 
     _attr_device_class = SensorDeviceClass.TEMPERATURE
-    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
 
     def __init__(self, proxy, entry: ConfigEntry, probe_number: int) -> None:
