@@ -59,10 +59,10 @@ The OttoWilde G32 Connected grill uses a bidirectional TCP protocol over port 45
 |---------|-------|------|-------------|---------|
 | 0-1 | Header | Fixed | Always `0xa3 0x3a` | - |
 | 2-5 | Serial | 4 bytes | Grill serial number | Hex string |
-| 6-7 | Zone 1 | uint16 BE | Grill surface zone 1 temp | raw ÷ 23.4 = °C |
-| 8-9 | Zone 2 | uint16 BE | Grill surface zone 2 temp | raw ÷ 23.4 = °C |
-| 10-11 | Zone 3 | uint16 BE | Grill surface zone 3 temp | raw ÷ 23.4 = °C |
-| 12-13 | Zone 4 | uint16 BE | Grill surface zone 4 temp | raw ÷ 23.4 = °C |
+| 6-7 | Zone 1 | uint16 BE | Grill surface zone 1 temp | raw ÷ 25 = °C |
+| 8-9 | Zone 2 | uint16 BE | Grill surface zone 2 temp | raw ÷ 25 = °C |
+| 10-11 | Zone 3 | uint16 BE | Grill surface zone 3 temp | raw ÷ 25 = °C |
+| 12-13 | Zone 4 | uint16 BE | Grill surface zone 4 temp | raw ÷ 25 = °C |
 | 14-15 | Probe 1 | uint16 BE | Meat probe 1 temp | raw ÷ 25 = °C |
 | 16-17 | Probe 2 | uint16 BE | Meat probe 2 temp | raw ÷ 25 = °C |
 | 18-19 | Probe 3 | uint16 BE | Meat probe 3 temp | raw ÷ 25 = °C |
@@ -73,21 +73,19 @@ The OttoWilde G32 Connected grill uses a bidirectional TCP protocol over port 45
 | 26-48 | Unknown | 23 bytes | Additional data (undocumented) | - |
 | 49 | End Marker | Fixed | Always `0xc3` | - |
 
-### Temperature Encoding Rationale
+### Temperature Encoding
 
-The protocol uses **different divisors** for zones vs probes:
+All temperature sensors (zones and probes) use **÷25** divisor:
 
-- **Zones (÷23.4)**: Grill surface temperatures range 0-600°C for infrared grilling
-  - 16-bit max: 65535 ÷ 23.4 = 2800°C (sufficient headroom)
-  - Precision: 0.043°C steps
-  - Formula determined empirically (corrected from initial ÷20)
+- **Zones (÷25)**: Grill surface temperatures range 0-600°C for infrared grilling
+  - 16-bit max: 65535 ÷ 25 = 2621°C (sufficient headroom)
+  - Precision: 0.04°C steps
   
 - **Probes (÷25)**: Meat temperatures range 0-120°C
   - 16-bit max: 65535 ÷ 25 = 2621°C (more than needed)
   - Precision: 0.04°C steps
-  - Formula determined empirically (corrected from initial ÷10)
 
-These divisors were determined by comparing raw sensor values to mobile app readings during operation.
+Formula determined empirically by comparing raw sensor values to mobile app readings during operation. Both sensor types use identical encoding.
 
 ### Unused Sensor Marker
 

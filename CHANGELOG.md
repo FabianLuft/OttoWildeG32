@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.3] - 2026-04-07
+
+### Fixed
+- **Unified temperature formula** - Both zones and probes now use ÷25
+  - Probes were perfect with ÷25
+  - Zones now also use ÷25 (changed from ÷23.4)
+  - All 8 temperature sensors now use identical formula
+
+**Impact:** All temperature sensors (zones and probes) now match mobile app readings exactly.
+
 ## [1.2.2] - 2026-04-07
 
 ### Fixed

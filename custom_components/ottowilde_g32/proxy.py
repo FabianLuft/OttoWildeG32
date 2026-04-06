@@ -87,15 +87,13 @@ class OttoWildeProxy:
             if temp_raw == 0x9600:
                 continue
 
-            # Temperature calculation: zones use ÷23.4, probes use ÷25
+            # Temperature calculation: both zones and probes use ÷25
             if i < 4:
                 # Zones (grill surface temperatures)
-                # Observed 1.17x multiplier, adjusted from ÷20 to ÷23.4 (20 * 1.17)
-                temp_c = temp_raw / 23.4
+                temp_c = temp_raw / 25.0
                 result['zones'][f'zone_{i+1}'] = round(temp_c, 1)
             else:
                 # Probes (meat/food temperatures)
-                # Observed 2.5x multiplier, adjusted from ÷10 to ÷25 (10 * 2.5)
                 temp_c = temp_raw / 25.0
                 result['probes'][f'probe_{i-3}'] = round(temp_c, 1)
 
