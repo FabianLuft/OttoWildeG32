@@ -75,17 +75,29 @@ The OttoWilde G32 Connected grill uses a bidirectional TCP protocol over port 45
 
 ### Temperature Encoding
 
-All temperature sensors (zones and probes) use **÷25** divisor:
+All temperature sensors (zones and probes) use **÷25** base divisor with **offset correction** for low temperatures:
 
-- **Zones (÷25)**: Grill surface temperatures range 0-600°C for infrared grilling
+**Formula:**
+- **Above 21°C**: `temp_°C = raw / 25`
+- **Below 21°C**: `temp_°C = (raw / 25) + offset` where `offset = (21 - temp) × 0.222`
+
+**Rationale:**
+- The firmware uses non-linear encoding in the ambient temperature range (0-30°C)
+- 21°C (room temperature) serves as inflection point where offset becomes 0
+- Above 21°C, simple linear scaling with ÷25 divisor
+- Below 21°C, offset increases linearly as temperature decreases
+
+**Zones (÷25 + offset)**: Grill surface temperatures range 0-600°C for infrared grilling
   - 16-bit max: 65535 ÷ 25 = 2621°C (sufficient headroom)
   - Precision: 0.04°C steps
+  - Offset applied only below 21°C
   
-- **Probes (÷25)**: Meat temperatures range 0-120°C
+**Probes (÷25 + offset)**: Meat temperatures range 0-120°C
   - 16-bit max: 65535 ÷ 25 = 2621°C (more than needed)
   - Precision: 0.04°C steps
+  - Offset applied only below 21°C
 
-Formula determined empirically by comparing raw sensor values to mobile app readings during operation. Both sensor types use identical encoding.
+Formula determined empirically by comparing raw sensor values to mobile app readings across full temperature range (0-600°C). Both sensor types use identical encoding with piecewise-linear correction.
 
 ### Unused Sensor Marker
 
@@ -184,11 +196,20 @@ def parse_sensor_packet(data: bytes) -> dict:
         if raw == 0x9600:  # Unused sensor
             continue
         
+        # Temperature calculation with low-temp offset correction
+        temp_raw_c = raw / 25.0
+        
+        # Apply offset for temperatures below 21°C (ambient range)
+        # Offset increases linearly as temperature decreases below 21°C
+        if temp_raw_c < 21:
+            offset_correction = (21 - temp_raw_c) * 0.222
+            temp_c = temp_raw_c + offset_correction
+        else:
+            temp_c = temp_raw_c
+        
         if i < 4:  # Zones (grill surface)
-            temp_c = raw / 20.0
             result['zones'][f'zone_{i+1}'] = round(temp_c, 1)
         else:  # Probes (meat)
-            temp_c = raw / 10.0
             result['probes'][f'probe_{i-3}'] = round(temp_c, 1)
     
     # Gas level

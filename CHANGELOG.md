@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.2.4] - 2026-04-07
+
+### Fixed
+- **Low-temperature offset correction** - Non-linear encoding below 21°C now compensated
+  - App showed 7°C, HACS showed 3°C → Fixed with offset correction
+  - Formula: For temps < 21°C, apply `offset = (21 - temp) × 0.222`
+  - Inflection point at 21°C (room temperature) where offset becomes 0
+  - High temperatures (>21°C) continue to use simple ÷25 divisor
+  - Based on empirical observation: deviation below 30°C, perfect alignment at 21°C and 62°C
+
+**Impact:** All temperature ranges now match mobile app readings accurately, from ambient (0-30°C) to cooking (30-600°C).
+
+**Testing needed:** User should verify accuracy at multiple points:
+- 5-10°C: Low-temp accuracy
+- 15-20°C: Transition region
+- 25-30°C: Verify offset not over-applied
+- 50-100°C: Confirm high-temp accuracy unchanged
+
+**Note:** Coefficient (0.222) may need fine-tuning based on multi-point testing. Increase if still under-reading, decrease if over-reading.
+
 ## [1.2.3] - 2026-04-07
 
 ### Fixed

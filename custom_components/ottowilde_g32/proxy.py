@@ -87,21 +87,31 @@ class OttoWildeProxy:
             if temp_raw == 0x9600:
                 continue
 
-            # Temperature calculation: both zones and probes use ÷25
+            # Temperature calculation: both zones and probes use ÷25 with low-temp offset correction
+            temp_raw_c = temp_raw / 25.0
+
+            # Apply offset correction for temperatures below 21°C (ambient range)
+            # Non-linear encoding in firmware requires offset that decreases linearly to 0 at 21°C
+            # Calibration: At display=3°C, actual=7°C → need +4°C offset
+            # Offset slope: 4 / (21 - 3) ≈ 0.222°C per degree below 21°C
+            if temp_raw_c < 21:
+                offset = (21 - temp_raw_c) * 0.222
+                temp_c = temp_raw_c + offset
+            else:
+                temp_c = temp_raw_c
+
             if i < 4:
                 # Zones (grill surface temperatures)
-                temp_c = temp_raw / 25.0
                 result['zones'][f'zone_{i+1}'] = round(temp_c, 1)
             else:
                 # Probes (meat/food temperatures)
-                temp_c = temp_raw / 25.0
                 result['probes'][f'probe_{i-3}'] = round(temp_c, 1)
 
             # DEBUG: Log raw hex values for temperature analysis
             sensor_type = "zone" if i < 4 else "probe"
             sensor_num = (i + 1) if i < 4 else (i - 3)
             hex_bytes = data[offset:offset+2].hex()
-            _LOGGER.info(f"🔍 DEBUG: {sensor_type}_{sensor_num} | Raw hex: {hex_bytes} | Raw decimal: {temp_raw} | Calculated: {temp_c}°C")
+            _LOGGER.info(f"🔍 DEBUG: {sensor_type}_{sensor_num} | Raw hex: {hex_bytes} | Raw decimal: {temp_raw} | Raw/25: {temp_raw_c}°C | Final: {temp_c}°C")
 
         # Gas level (bytes 22-23) - already in percentage
         gas_raw = struct.unpack('>H', data[22:24])[0]
