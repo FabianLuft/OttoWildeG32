@@ -97,9 +97,14 @@ class OttoWildeZoneSensor(OttoWildeBaseSensor):
 
     def _handle_coordinator_update(self, data: dict[str, Any]) -> None:
         """Handle updated data from the proxy."""
-        if 'zones' in data and self._zone_key in data['zones']:
-            self._attr_native_value = data['zones'][self._zone_key]
-            self.async_write_ha_state()
+        if 'zones' in data:
+            if self._zone_key in data['zones']:
+                self._attr_native_value = data['zones'][self._zone_key]
+                self.async_write_ha_state()
+            elif data['zones'].get(self._zone_key) is None:
+                # Explicitly set to None when grill is off
+                self._attr_native_value = None
+                self.async_write_ha_state()
 
 
 class OttoWildeProbeSensor(OttoWildeBaseSensor):
@@ -119,9 +124,11 @@ class OttoWildeProbeSensor(OttoWildeBaseSensor):
 
     def _handle_coordinator_update(self, data: dict[str, Any]) -> None:
         """Handle updated data from the proxy."""
-        if 'probes' in data and self._probe_key in data['probes']:
-            self._attr_native_value = data['probes'][self._probe_key]
-            self.async_write_ha_state()
+        if 'probes' in data:
+            if self._probe_key in data['probes']:
+                # Update with value (could be None if probe disconnected, or a temperature)
+                self._attr_native_value = data['probes'][self._probe_key]
+                self.async_write_ha_state()
 
 
 class OttoWildeGasSensor(OttoWildeBaseSensor):

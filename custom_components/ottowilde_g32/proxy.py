@@ -24,6 +24,11 @@ class OttoWildeProxy:
         # Track status changes for prominent logging
         self._last_hood_status = None
 
+        # Packet timeout tracking (grill off detection)
+        self._last_packet_time = None
+        self._timeout_task = None
+        self._packet_timeout = 15  # seconds - grill sends every ~4s, so 15s = definitely off
+
     async def start(self):
         """Start the MITM proxy server."""
         _LOGGER.info("=" * 70)
@@ -83,8 +88,11 @@ class OttoWildeProxy:
             offset = 6 + (i * 2)
             temp_raw = struct.unpack('>H', data[offset:offset+2])[0]
 
-            # Skip unused sensors (0x9600 = 38400)
+            # Handle unused sensors (0x9600 = 38400)
             if temp_raw == 0x9600:
+                # Probes should show None (-) when disconnected
+                if i >= 4:
+                    result['probes'][f'probe_{i-3}'] = None
                 continue
 
             # Temperature calculation: both zones and probes use ÷25 with low-temp offset correction
@@ -189,6 +197,10 @@ class OttoWildeProxy:
         # Log the data first with all details
         self._log_sensor_data(parsed_data)
 
+        # Update last packet time and reset timeout
+        self._last_packet_time = time.time()
+        self._schedule_timeout_check()
+
         # Fire HomeAssistant event for entity updates
         self.hass.bus.async_fire(
             f"{DOMAIN}_update",
@@ -208,6 +220,40 @@ class OttoWildeProxy:
         self.hass.bus.async_fire(
             f"{DOMAIN}_config_update",
             config_data
+        )
+
+    def _schedule_timeout_check(self):
+        """Schedule a check for packet timeout (grill turned off)."""
+        # Cancel existing timeout task if any
+        if self._timeout_task:
+            self._timeout_task.cancel()
+
+        # Schedule new timeout check
+        async def check_timeout():
+            await asyncio.sleep(self._packet_timeout)
+            if self._last_packet_time and (time.time() - self._last_packet_time) >= self._packet_timeout:
+                _LOGGER.warning("⚠️  Grill turned off - No packets received for 15 seconds")
+                self._send_unavailable_state()
+
+        self._timeout_task = asyncio.create_task(check_timeout())
+
+    def _send_unavailable_state(self):
+        """Send None values for all sensors when grill is off."""
+        unavailable_data = {
+            'zones': {f'zone_{i}': None for i in range(1, 5)},
+            'probes': {f'probe_{i}': None for i in range(1, 5)},
+            'gas_level': None,
+            'hood_open': False,
+            'auto_light_triggered': False,
+            'timestamp': time.time()
+        }
+
+        _LOGGER.info("📊 Grill Data → All sensors: N/A (grill off)")
+
+        # Fire HomeAssistant event to set all sensors to unavailable
+        self.hass.bus.async_fire(
+            f"{DOMAIN}_update",
+            unavailable_data
         )
 
     def parse_and_publish(self, data: bytes):

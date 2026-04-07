@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.5] - 2026-04-07
+
+### Added
+- **Grill off detection** - Sensors reset to N/A when grill stops sending data
+  - 15-second timeout (grill sends every ~4s)
+  - All zones → None (displayed as "N/A" in HA)
+  - All probes → None (displayed as "-" in HA)
+  - Automatic detection when grill is turned off
+
+### Changed
+- **Probe disconnect handling** - Probes now show "-" when physically disconnected
+  - When 0x9600 marker detected, probe entity set to None
+  - Differentiates between "grill off" and "probe unplugged"
+  - Zones always show data when grill is on (never 0x9600)
+
+**Impact:** Clean sensor states - no stale temperature values when grill is off or probes are removed.
+
 ## [1.2.4] - 2026-04-07
 
 ### Fixed
