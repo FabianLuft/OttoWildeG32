@@ -56,6 +56,7 @@ class OttoWildeBaseSensor(SensorEntity):
         """Initialize the sensor."""
         self.proxy = proxy
         self._entry = entry
+        self._attr_available = True
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name="OttoWilde G32 Grill",
@@ -97,14 +98,17 @@ class OttoWildeZoneSensor(OttoWildeBaseSensor):
 
     def _handle_coordinator_update(self, data: dict[str, Any]) -> None:
         """Handle updated data from the proxy."""
-        if 'zones' in data:
-            if self._zone_key in data['zones']:
-                self._attr_native_value = data['zones'][self._zone_key]
-                self.async_write_ha_state()
-            elif data['zones'].get(self._zone_key) is None:
-                # Explicitly set to None when grill is off
+        if 'zones' in data and self._zone_key in data['zones']:
+            value = data['zones'][self._zone_key]
+            if value is None:
+                # Zone unavailable (grill off or sensor error)
+                self._attr_available = False
                 self._attr_native_value = None
-                self.async_write_ha_state()
+            else:
+                # Zone has valid temperature
+                self._attr_available = True
+                self._attr_native_value = value
+            self.async_write_ha_state()
 
 
 class OttoWildeProbeSensor(OttoWildeBaseSensor):
@@ -124,11 +128,17 @@ class OttoWildeProbeSensor(OttoWildeBaseSensor):
 
     def _handle_coordinator_update(self, data: dict[str, Any]) -> None:
         """Handle updated data from the proxy."""
-        if 'probes' in data:
-            if self._probe_key in data['probes']:
-                # Update with value (could be None if probe disconnected, or a temperature)
-                self._attr_native_value = data['probes'][self._probe_key]
-                self.async_write_ha_state()
+        if 'probes' in data and self._probe_key in data['probes']:
+            value = data['probes'][self._probe_key]
+            if value is None:
+                # Probe unavailable (disconnected or grill off)
+                self._attr_available = False
+                self._attr_native_value = None
+            else:
+                # Probe has valid temperature
+                self._attr_available = True
+                self._attr_native_value = value
+            self.async_write_ha_state()
 
 
 class OttoWildeGasSensor(OttoWildeBaseSensor):
@@ -147,8 +157,16 @@ class OttoWildeGasSensor(OttoWildeBaseSensor):
 
     def _handle_coordinator_update(self, data: dict[str, Any]) -> None:
         """Handle updated data from the proxy."""
-        if 'gas_level' in data and data['gas_level'] is not None:
-            self._attr_native_value = data['gas_level']
+        if 'gas_level' in data:
+            value = data['gas_level']
+            if value is None:
+                # Gas sensor unavailable (grill off)
+                self._attr_available = False
+                self._attr_native_value = None
+            else:
+                # Gas sensor has valid percentage
+                self._attr_available = True
+                self._attr_native_value = value
             self.async_write_ha_state()
 
 

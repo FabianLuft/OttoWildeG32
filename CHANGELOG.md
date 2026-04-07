@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.6] - 2026-04-07
+
+### Fixed
+- **Sensor availability mechanism** - Zones and probes now properly marked as unavailable
+  - When grill is off, entities show "unavailable" instead of "unknown" 
+  - Fixes "NaN" display issue in frontend cards (zones showed "NaN" instead of "N/A")
+  - Uses HomeAssistant availability mechanism correctly (`_attr_available`)
+  - Applies to zones, probes, and gas sensor
+  - Better integration with automations and scripts
+
+**Impact:** Frontend cards now display "N/A" correctly when grill is off or sensors disconnected. Entity states are architecturally correct.
+
 ## [1.2.5] - 2026-04-07
 
 ### Added
